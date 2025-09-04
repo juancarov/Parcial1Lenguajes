@@ -188,3 +188,89 @@ raiz3(1000)/10
 $$
 e^x = \frac{x^n}{n!}
 $$
+
+*Gramática*
+
+<pre>
+grammar Exp;
+  
+// parser
+prog : expr+ EOF ;
+expr : 'exp' '(' NUM ',' NUM ')' ;
+
+// lexer
+NUM : '-'? [0-9]+ ('.' [0-9]+)? ; // acepta negativos y decimales
+WS  : [ \t\r\n]+ -> skip ;
+</pre>
+
+*Visitor*
+
+<pre>
+  public class EvalVisitor extends ExpBaseVisitor<Double> {
+
+    @Override
+    public Double visitProg(ExpParser.ProgContext ctx) {
+        for (ExpParser.ExprContext exprCtx : ctx.expr()) {
+            Double result = visit(exprCtx);
+            System.out.println("Resultado: " + result);
+        }
+        return 0.0;
+    }
+
+    @Override
+    public Double visitExpr(ExpParser.ExprContext ctx) {
+        // Ambos argumentos son NUM
+        double x = Double.parseDouble(ctx.NUM(0).getText());
+        int n = Integer.parseInt(ctx.NUM(1).getText());
+
+        double resultado = 0.0;
+        double factorial = 1.0;
+
+        for (int k = 0; k <= n; k++) {
+            if (k > 0) factorial *= k;
+            resultado += Math.pow(x, k) / factorial;
+        }
+
+        return resultado;
+    }
+}
+</pre>
+
+*Main*
+
+<pre>
+  import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        if (args.length == 0) {
+            System.out.println("Uso: java Main <archivo_entrada>");
+            return;
+        }
+
+        CharStream input = CharStreams.fromFileName(args[0]);
+        ExpLexer lexer = new ExpLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        ExpParser parser = new ExpParser(tokens);
+        ParseTree tree = parser.prog();
+
+        EvalVisitor visitor = new EvalVisitor();
+        visitor.visit(tree);
+    }
+}
+</pre>
+
+*Entrada*
+
+<pre>
+exp(1,5)
+exp(2,10)
+exp(3,15)
+exp(-1,8)
+exp(0,5)
+exp(5,20)
+exp(0.5,12)
+</pre>
+
+![Salida Punto5](Punto5/SalidaPunto5.png)
