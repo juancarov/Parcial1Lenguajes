@@ -2,6 +2,8 @@
 
 #### 1.  Para el siguiente ejercicio, de una expresión regular que represente el conjunto descrito. [El conjunto de cadenas sobre {𝑎, 𝑏, 𝑐} en el cual todas las 𝑎′𝑠 preceden a las 𝑏′𝑠 y éstas a su vez preceden a las 𝑐′𝑠. Es posible que no haya 𝑎′𝑠, 𝑏′𝑠 o 𝑐′𝑠]. Implemente el AFD para esta expresión regular. Use Python.
 
+La expresión regular para este AFD sería a*b*c*, donde desmostramos la seguidilla de las letras, aclarando que pueden o no aparecer
+
 <pre>
   def afd(cadena):
     estado = 'q0'
@@ -48,4 +50,6 @@ pruebas = ["aaa", "bbb", "ccc", "aaabbbccc", "ab", "ac", "bca", "aabbccaa"]
 for t in pruebas:
     print(t, '->', afd(t))
 </pre>
+
+![Salida Ejercicio1](SalidaPunto1.png)
 
