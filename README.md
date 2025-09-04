@@ -2,7 +2,7 @@
 
 #### 1.  Para el siguiente ejercicio, de una expresión regular que represente el conjunto descrito. [El conjunto de cadenas sobre {𝑎, 𝑏, 𝑐} en el cual todas las 𝑎′𝑠 preceden a las 𝑏′𝑠 y éstas a su vez preceden a las 𝑐′𝑠. Es posible que no haya 𝑎′𝑠, 𝑏′𝑠 o 𝑐′𝑠]. Implemente el AFD para esta expresión regular. Use Python.
 
-La expresión regular para este AFD sería a*b*c*, donde desmostramos la seguidilla de las letras, aclarando que pueden o no aparecer
+La expresión regular para este AFD sería "a * b * c *", donde desmostramos la seguidilla de las letras, aclarando que pueden o no aparecer
 
 <pre>
   def afd(cadena):
@@ -86,3 +86,99 @@ for t in pruebas:
 
 ![Salida Punto2](SalidaPunto2.png)
 
+#### 3.  Escriba un programa en C que implemente una calculadora que pueda sacar raíz cubica de números reales. Use flex y Bison. La entrada debe ser por un archivo de texto y la salida debe ser por consola.
+
+*Flex (Análisis Léxico)*
+
+<pre>
+%{
+#include "punto3.tab.h"
+#include <stdlib.h>
+%}
+
+%%
+
+[0-9]+(\.[0-9]+)?    { yylval.fval = atof(yytext); return NUM; }
+raiz3                { return RAIZ3; }
+[+\-*/\n()]           { return yytext[0]; }
+[ \t]                { /* ignorar espacios */ }
+.                    { /* cualquier otro char lo ignoramos */ }
+
+%%
+</pre>
+
+*Bison (Análisis Sintáctico / Gramático)*
+
+<pre>
+%{
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+
+extern int yylex();
+extern FILE *yyin;
+
+void yyerror(const char *s);
+%}
+
+%union {
+    double fval;
+}
+
+%token <fval> NUM
+%token RAIZ3
+%type <fval> exp
+
+%%
+
+input:
+    /* vacío */
+  | input exp '\n'   { printf("= %f\n", $2); }
+  ;
+
+exp:
+    NUM                 { $$ = $1; }
+  | exp '+' exp         { $$ = $1 + $3; }
+  | exp '-' exp         { $$ = $1 - $3; }
+  | exp '*' exp         { $$ = $1 * $3; }
+  | exp '/' exp         { $$ = $1 / $3; }
+  | '(' exp ')'         { $$ = $2; }
+  | '-' exp             { $$ = -$2; }
+  | RAIZ3 '(' exp ')'   { $$ = cbrt($3); }   /* <- aquí la raíz cúbica */
+  ;
+
+%%
+
+void yyerror(const char *s) {
+    fprintf(stderr, "Error: %s\n", s);
+}
+
+int main(int argc, char **argv) {
+    if (argc > 1) {
+        yyin = fopen(argv[1], "r");
+        if (!yyin) {
+            perror("No se pudo abrir el archivo");
+            return 1;
+        }
+    }
+    yyparse();
+    return 0;
+}
+</pre>
+
+*Entrada.txt (operaciones a realizar)*
+
+<pre>
+5+3
+10-2*3
+(4+6)/2
+raiz3(27)
+raiz3(64)+1
+2*raiz3(8)+5
+raiz3(125)-raiz3(8)
+raiz3(2)
+raiz3(8*27)
+raiz3(1000)/10
+</pre>
+
+![Salida Punto3](Punto3/SalidaPunto3.png)
