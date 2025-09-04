@@ -39,6 +39,6 @@ def afd(cadena):
     
     return 'acepta' if estado in finales else 'no acepta'
 
-pruebas = ["aaa", "bbb", "ccc", "aaabbbccc", "ab", "ac", "bca", "aabbccaa"]
+pruebas = ['aaa', 'bbb', 'ccc', 'aaabbbccc', 'ab', 'ac', 'bca', 'aabbcca']
 for t in pruebas:
     print(t, '->', afd(t))
